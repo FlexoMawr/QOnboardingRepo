@@ -1,0 +1,4 @@
+SELECT s.Name
+FROM Students s, Friends f, Packages p, Packages fp
+WHERE s.ID = f.ID AND p.id = s.id AND fp.id = f.friend_id AND p.salary < fp.salary
+ORDER BY fp.salary;
