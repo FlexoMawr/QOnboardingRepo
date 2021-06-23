@@ -1,0 +1,14 @@
+select * from tabba1111;
+select * from t200;
+
+select * From tabba1111
+INTERSECT
+select * From t200;
+
+
+  select count(*) from
+(
+select * From tabba1111
+INTERSECT
+select * From t200
+)
