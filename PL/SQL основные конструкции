@@ -1,0 +1,99 @@
+CREATE OR REPLACE PACKAGE BODY xx_test_to_number_pkg AS 
+  v_test_count number:=0;
+
+  function chk_to_number(p_in_value varchar2, v_out_value number, p_error number) RETURN number
+  IS  
+    v_result number;
+    v_return_value number;
+  BEGIN  
+     v_test_count:=v_test_count+1;
+     BEGIN 
+       -- v_result := to_number(p_in_value);
+        v_result := to_bumber(p_in_value);
+           
+        if v_result = v_out_value then           
+          dbms_output.put_line('Test '||v_test_count||' Bench');
+          v_return_value:= 1;
+        else  
+          dbms_output.put_line('Test '||v_test_count||' Error. v_result = '||v_result||' v_out_value = '||v_out_value);
+          v_return_value:= 0; 
+        end if;
+     EXCEPTION 
+       WHEN others THEN 
+         if sqlcode=p_error then       
+           dbms_output.put_line('Test '||v_test_count||' Bench');  
+           v_return_value:= 1;       
+         else
+           dbms_output.put_line('Test '||v_test_count||' Error. sqlcode = '||sqlcode||' p_error = '||p_error);
+           v_return_value:= 0;            
+         end if;
+     end;
+     
+     return v_return_value;
+  end chk_to_number;      
+
+  PROCEDURE choke 
+  IS  
+    t_total number:=0;  
+  begin 
+    v_test_count:= 0;
+    
+    t_total := t_total + chk_to_number('100', 100, null);
+    t_total := t_total + chk_to_number('100.10', 100.10, null); 
+    t_total := t_total + chk_to_number('-100.10', -100.10, null);
+    t_total := t_total + chk_to_number('-100123123123123.10', -100123123123123.10, null);
+    t_total := t_total + chk_to_number('jopa', null, -6502);
+    t_total := t_total + chk_to_number('100,10', 100.10, null);
+    t_total := t_total + chk_to_number(' 100,10', 100.10, null); 
+       
+    if t_total < 7 then
+      dbms_output.put_line('govna pozuj');
+    else
+      dbms_output.put_line('succses');
+    end if;
+    --TODO return staTUS of test 
+  end choke;
+
+
+end xx_test_to_number_pkg;
+
+========================================================================================================
+create or replace package xx_test_to_number_pkg is
+
+  -- Author  : STUDENT
+  -- Created : 08.07.2021 10:30:17
+  -- Purpose : 
+
+  -- Public function and procedure declarations
+-- function XXchk_to_number(ch varchar2) return number;
+ function chk_to_number(p_in_value varchar2, v_out_value number, p_error number) return number;
+ procedure choke ;
+end xx_test_to_number_pkg;
+
+========================================================================================================
+
+create or replace function to_bumber(ch varchar2) return number is
+  v_result varchar2(100);
+  v_result2 varchar(100);
+  t_total number;
+    BEGIN
+      v_result:= REPLACE(REGEXP_REPLACE( ch, '\s'), CHR(0));
+      v_result2:= REPLACE(v_result, ',' , '.');
+      t_total:=to_number(v_result2);
+      return t_total;
+end to_bumber;
+
+
+
+/*function XXchk_to_number(ch varchar2) return number
+    IS
+    v_result varchar2(100);
+    t_total number;
+    BEGIN
+      dbms_output.put_line(ch);
+    dbms_output.put_line(REPLACE(REGEXP_REPLACE( ch, '\s'), CHR(0)));
+    v_result:= REPLACE(REGEXP_REPLACE( ch, '\s'), CHR(0));
+    dbms_output.put_line(REPLACE(v_result, ',' , '.'));
+    t_total:=to_number(v_result);
+      return t_total;
+  end XXchk_to_number;*/
